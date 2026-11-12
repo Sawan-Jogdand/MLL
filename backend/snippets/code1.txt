@@ -1,0 +1,44 @@
+import pandas as pd
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+# Load Titanic dataset
+df = sns.load_dataset('titanic')
+
+print("Original Dataset:")
+print(df.head())
+
+# Select required features
+df = df[['survived', 'pclass', 'sex', 'age',
+         'fare', 'embarked']].copy()
+
+# Handle missing values
+df['age'] = df['age'].fillna(df['age'].median())
+df['embarked'] = df['embarked'].fillna(
+    df['embarked'].mode()[0]
+)
+
+# Encode categorical variables
+le = LabelEncoder()
+df['sex'] = le.fit_transform(df['sex'])
+
+df = pd.get_dummies(
+    df, columns=['embarked'], dtype=int
+)
+
+# Scale numerical attributes
+scaler = StandardScaler()
+
+df[['age', 'fare']] = scaler.fit_transform(
+    df[['age', 'fare']]
+)
+
+print("\nCleaned and Model-Ready Dataset:")
+print(df.head())
+
+# Check missing values
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Save processed dataset
+df.to_csv('processed_titanic.csv', index=False)
